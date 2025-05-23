@@ -1,5 +1,6 @@
 from flask import Flask, request
 from telegram import Update, Bot
+from telegram.constants import ParseMode
 from telegram.ext import Application, ApplicationBuilder, ContextTypes, MessageHandler, filters
 import os
 import asyncio
@@ -37,10 +38,12 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lat, lon = match.groups()
         await update.message.reply_text(
             f"🎯 Koordinat terdeteksi:\n`{lat}, {lon}`\n📍 https://maps.google.com/?q={lat},{lon}",
-            parse_mode="Markdown"
+            parse_mode=ParseMode.MARKDOWN
         )
     else:
-        await update.message.reply_text("Halo, aku bot dari Render! Kirim lokasi atau koordinatmu ya!")
+        await update.message.reply_text(
+            "Halo, aku bot dari Render! Kirim lokasi atau koordinatmu ya!"
+        )
 
 # =======================
 # HANDLER SHARE LOCATION
@@ -52,7 +55,7 @@ async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
         lon = loc.longitude
         await update.message.reply_text(
             f"Lokasimu terdeteksi:\n`{lat}, {lon}`",
-            parse_mode="Markdown"
+            parse_mode=ParseMode.MARKDOWN
         )
     except Exception as e:
         print("[ERROR][handle_location]", e)
