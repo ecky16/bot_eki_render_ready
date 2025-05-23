@@ -3,9 +3,11 @@ from telegram import Update, Bot
 from telegram.ext import Application, ApplicationBuilder, ContextTypes, MessageHandler, filters
 import os
 import asyncio
+import re
 
 BOT_TOKEN = os.environ.get("BOT_TOKEN")
 WEBHOOK_URL = os.environ.get("WEBHOOK_URL")
+PORT = int(os.environ.get("PORT", 10000))
 
 app = Flask(__name__)
 bot = Bot(token=BOT_TOKEN)
@@ -22,13 +24,44 @@ def webhook():
     asyncio.create_task(application.process_update(update))
     return "OK", 200
 
+# =======================
+# HANDLER TEKS
+# =======================
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("[HANDLE_TEXT] Masuk handler")
-    await update.message.reply_text("Halo, aku bot dari Render!")
+    text = update.message.text
 
+    # Cari pola koordinat di teks
+    match = re.search(r"(-?\d{1,3}\.\d+),\s*(-?\d{1,3}\.\d+)", text)
+    if match:
+        lat, lon = match.groups()
+        await update.message.reply_text(
+            f"🎯 Koordinat terdeteksi:\n{lat}, {lon}\n📍 https://maps.google.com/?q={lat},{lon}"
+        )
+    else:
+        await update.message.reply_text("Halo, aku bot dari Render! Kirim lokasi atau koordinatmu ya!")
+
+# =======================
+# HANDLER LOKASI
+# =======================
+async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        loc = update.message.location
+        lat = loc.latitude
+        lon = loc.longitude
+        await update.message.reply_text(f"Lokasimu terdeteksi:\n{lat}, {lon}")
+    except Exception as e:
+        print("[ERROR][handle_location]", e)
+
+# Tambahkan semua handler
 application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
+application.add_handler(MessageHandler(filters.LOCATION, handle_location))
 
+# =======================
+# JALANKAN
+# =======================
 if __name__ == "__main__":
     import threading
-    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))).start()
+    threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT)).start()
     application.run_polling()
+
