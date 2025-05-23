@@ -25,7 +25,7 @@ def webhook():
     return "OK", 200
 
 # =======================
-# HANDLER TEKS
+# HANDLER TEKS (koordinat)
 # =======================
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     print("[HANDLE_TEXT] Masuk handler")
@@ -36,20 +36,24 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if match:
         lat, lon = match.groups()
         await update.message.reply_text(
-            f"🎯 Koordinat terdeteksi:\n{lat}, {lon}\n📍 https://maps.google.com/?q={lat},{lon}"
+            f"🎯 Koordinat terdeteksi:\n`{lat}, {lon}`\n📍 https://maps.google.com/?q={lat},{lon}",
+            parse_mode="Markdown"
         )
     else:
         await update.message.reply_text("Halo, aku bot dari Render! Kirim lokasi atau koordinatmu ya!")
 
 # =======================
-# HANDLER LOKASI
+# HANDLER SHARE LOCATION
 # =======================
 async def handle_location(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         loc = update.message.location
         lat = loc.latitude
         lon = loc.longitude
-        await update.message.reply_text(f"Lokasimu terdeteksi:\n{lat}, {lon}")
+        await update.message.reply_text(
+            f"Lokasimu terdeteksi:\n`{lat}, {lon}`",
+            parse_mode="Markdown"
+        )
     except Exception as e:
         print("[ERROR][handle_location]", e)
 
@@ -64,4 +68,3 @@ if __name__ == "__main__":
     import threading
     threading.Thread(target=lambda: app.run(host="0.0.0.0", port=PORT)).start()
     application.run_polling()
-
