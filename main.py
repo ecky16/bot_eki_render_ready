@@ -42,7 +42,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     else:
         await update.message.reply_text(
-            "Halo, aku bot dari Render! Kirim lokasi atau koordinatmu ya!"
+            "Halo, aku bot dari Ecky! Kirim lokasi atau koordinatmu ya!"
         )
 
 # =======================
